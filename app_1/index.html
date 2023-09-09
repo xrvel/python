@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Web Scraping Example</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+
+	<h1>Hacker News Titles</h1>
+	<button id="scrape-button">Scrape Titles</button>
+	<ul id="title-list">
+	</ul>
+
+	<script>
+		$(document).ready(function () {
+			$("#scrape-button").click(function () {
+				$.get("http://localhost:5000/scrape", function (data) {
+					$("#title-list").empty();
+					data.items.forEach(function (title) {
+						$("#title-list").append("<li>" + title + "</li>");
+					});
+				});
+			});
+		});
+	</script>
+
+</body>
+
+</html>
