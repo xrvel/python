@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS  # Import CORS
 import requests
 from bs4 import BeautifulSoup
+from pprint import pprint
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -9,9 +10,17 @@ CORS(app)  # Enable CORS for all routes
 @app.route('/scrape', methods=['GET'])
 def scrape():
     url = 'http://localhost/my_git/python/app_1/test.html'  # Replace with the actual URL
+    print("URL = {}". format(url))
     headers = {'User-Agent': 'Mozilla/5.0'}
     r = requests.get(url, headers=headers)
     
+    # print(dir(r))
+    # print(vars(r))
+    pprint(vars(r))
+    
+    content_str = r._content.decode('utf-8')
+    print(content_str)
+
     if r.status_code == 200:
         soup = BeautifulSoup(r.content, 'html.parser')
         items = []
