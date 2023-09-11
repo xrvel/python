@@ -1,37 +1,43 @@
-from flask import Flask, jsonify
-from flask_cors import CORS  # Import CORS
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 import requests
 from bs4 import BeautifulSoup
-from pprint import pprint
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)
 
-@app.route('/scrape', methods=['GET'])
+@app.route('/scrape', methods=['GET', 'POST'])
 def scrape():
-    url = 'http://localhost/my_git/python/app_1/test.html'  # Replace with the actual URL
-    print("URL = {}". format(url))
+    if request.method == 'POST':
+        url = request.form.get('url_to_scrape', 'http://localhost/my_git/python/app_1/test.html')  # Use POST field if available
+    else:
+        url = 'http://localhost/my_git/python/app_1/test.html'  # Default URL to scrape
+
     headers = {'User-Agent': 'Mozilla/5.0'}
     r = requests.get(url, headers=headers)
     
-    # print(dir(r))
-    # print(vars(r))
-    pprint(vars(r))
-    
-    content_str = r._content.decode('utf-8')
-    print(content_str)
-
     if r.status_code == 200:
         soup = BeautifulSoup(r.content, 'html.parser')
         items = []
 
-        # Find all <a> tags with the class "something"
         for a_tag in soup.find_all('a', class_='something'):
-            items.append(a_tag.text)  # Get the text between <a>...</a>
+            items.append(a_tag.text)
 
         return jsonify({'items': items})
     else:
         return jsonify({'error': 'Failed to retrieve data', 'status_code': r.status_code})
+
+@app.route('/another', methods=['GET'])
+def another_route():
+    page = request.args.get('page', 0, type=int)
+    name = request.args.get('name', "", type=str)
+    print(f"Page variable is: {page}")
+    return jsonify({"message": "Hello from another route!", "page" : page, "name" : name})
+
+@app.route('/test', methods=['POST'])
+def test_route():
+    name = request.form.get('name', 'Anonymous')  # Default to "Anonymous" if "name" is not provided
+    return jsonify({"message": f"Hello, {name}!"})
 
 if __name__ == '__main__':
     app.run(port=5000)
